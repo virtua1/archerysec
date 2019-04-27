@@ -1,14 +1,18 @@
-#                   _
-#    /\            | |
-#   /  \   _ __ ___| |__   ___ _ __ _   _
-#  / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
-# / ____ \| | | (__| | | |  __/ |  | |_| |
-# /_/    \_\_|  \___|_| |_|\___|_|   \__, |
-#                                    __/ |
-#                                   |___/
-# Copyright (C) 2017-2018 ArcherySec
-# This file is part of ArcherySec Project.
 # -*- coding: utf-8 -*-
+#                    _
+#     /\            | |
+#    /  \   _ __ ___| |__   ___ _ __ _   _
+#   / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
+#  / ____ \| | | (__| | | |  __/ |  | |_| |
+# /_/    \_\_|  \___|_| |_|\___|_|   \__, |
+#                                     __/ |
+#                                    |___/
+# Copyright (C) 2017 Anand Tiwari
+#
+# Email:   anandtiwarics@gmail.com
+# Twitter: @anandtiwarics
+#
+# This file is part of ArcherySec Project.
 
 from django.shortcuts import render, render_to_response, HttpResponse, HttpResponseRedirect
 from compliance.models import inspec_scan_db, inspec_scan_results_db
@@ -195,7 +199,6 @@ def inspec_del_vuln(request):
         total_medium = len(all_inspec_data.filter(Severity="Medium"))
         total_low = len(all_inspec_data.filter(Severity="Low"))
         total_duplicate = len(all_inspec_data.filter(vuln_duplicate='Yes'))
-        print("total duplicats"), total_duplicate
 
         inspec_scan_db.objects.filter(scan_id=scan_id).update(
             total_vuln=total_vul,

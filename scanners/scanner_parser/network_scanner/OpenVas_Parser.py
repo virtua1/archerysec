@@ -1,12 +1,17 @@
-#                   _
-#    /\            | |
-#   /  \   _ __ ___| |__   ___ _ __ _   _
-#  / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
-# / ____ \| | | (__| | | |  __/ |  | |_| |
+# -*- coding: utf-8 -*-
+#                    _
+#     /\            | |
+#    /  \   _ __ ___| |__   ___ _ __ _   _
+#   / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
+#  / ____ \| | | (__| | | |  __/ |  | |_| |
 # /_/    \_\_|  \___|_| |_|\___|_|   \__, |
-#                                    __/ |
-#                                   |___/
-# Copyright (C) 2017-2018 ArcherySec
+#                                     __/ |
+#                                    |___/
+# Copyright (C) 2017 Anand Tiwari
+#
+# Email:   anandtiwarics@gmail.com
+# Twitter: @anandtiwarics
+#
 # This file is part of ArcherySec Project.
 
 from networkscanners.models import ov_scan_result_db, scan_save_db
@@ -29,6 +34,7 @@ bid = ''
 xref = ''
 tags = ''
 banner = ''
+vuln_color = None
 
 
 def xml_parser(root, project_id, scan_id):
@@ -149,6 +155,16 @@ def xml_parser(root, project_id, scan_id):
             vuln_duplicate=duplicate_hash).values('vuln_duplicate').distinct()
         lenth_match = len(match_dup)
 
+        vuln_color = ''
+        if threat == 'High':
+            vuln_color = 'danger'
+        elif threat == 'Medium':
+            vuln_color = 'warning'
+        elif threat == 'Low':
+            vuln_color = 'info'
+        elif threat == 'Log':
+            vuln_color = 'info'
+
         if lenth_match == 1:
             duplicate_vuln = 'Yes'
         elif lenth_match == 0:
@@ -187,7 +203,8 @@ def xml_parser(root, project_id, scan_id):
                                      vuln_status='Open',
                                      dup_hash=duplicate_hash,
                                      vuln_duplicate=duplicate_vuln,
-                                     project_id=project_id
+                                     project_id=project_id,
+                                     vuln_color=vuln_color
                                      )
         save_all.save()
 

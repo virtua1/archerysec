@@ -1,3 +1,19 @@
+# -*- coding: utf-8 -*-
+#                    _
+#     /\            | |
+#    /  \   _ __ ___| |__   ___ _ __ _   _
+#   / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
+#  / ____ \| | | (__| | | |  __/ |  | |_| |
+# /_/    \_\_|  \___|_| |_|\___|_|   \__, |
+#                                     __/ |
+#                                    |___/
+# Copyright (C) 2017 Anand Tiwari
+#
+# Email:   anandtiwarics@gmail.com
+# Twitter: @anandtiwarics
+#
+# This file is part of ArcherySec Project.
+
 """archerysecurity URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -20,7 +36,6 @@ from django.contrib import admin
 from rest_framework_jwt.views import obtain_jwt_token, verify_jwt_token
 from rest_framework_jwt.views import refresh_jwt_token
 import notifications.urls
-from django.urls import reverse
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -41,7 +56,7 @@ urlpatterns = [
     url(r'^inspec/', include('compliance.inspec.urls')),
     url(r'^retirejsscanner/', include('staticscanners.retirejsscan.urls')),
     url(r'^api/', include('archeryapi.urls')),
-    url(r'^scanapi/', include('APIScan.urls')),
+    #url(r'^scanapi/', include('APIScan.urls')),
     url(r'^vfeed/', include('vFeedgui.urls')),
     url('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
 

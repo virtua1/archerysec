@@ -1,12 +1,17 @@
-#                   _
-#    /\            | |
-#   /  \   _ __ ___| |__   ___ _ __ _   _
-#  / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
-# / ____ \| | | (__| | | |  __/ |  | |_| |
+# -*- coding: utf-8 -*-
+#                    _
+#     /\            | |
+#    /  \   _ __ ___| |__   ___ _ __ _   _
+#   / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
+#  / ____ \| | | (__| | | |  __/ |  | |_| |
 # /_/    \_\_|  \___|_| |_|\___|_|   \__, |
-#                                    __/ |
-#                                   |___/
-# Copyright (C) 2017-2018 ArcherySec
+#                                     __/ |
+#                                    |___/
+# Copyright (C) 2017 Anand Tiwari
+#
+# Email:   anandtiwarics@gmail.com
+# Twitter: @anandtiwarics
+#
 # This file is part of ArcherySec Project.
 
 from staticscanners.models import dependencycheck_scan_db, dependencycheck_scan_results_db
@@ -85,7 +90,7 @@ def xml_parser(data, project_id, scan_id):
                         vul_id = uuid.uuid4()
 
                         if severity == "High":
-                            vul_col = "important"
+                            vul_col = "danger"
 
                         elif severity == 'Medium':
                             vul_col = "warning"
@@ -151,7 +156,7 @@ def xml_parser(data, project_id, scan_id):
         total_medium = len(all_dependency_data.filter(severity="Medium"))
         total_low = len(all_dependency_data.filter(severity="Low"))
         total_duplicate = len(all_dependency_data.filter(vuln_duplicate='Yes'))
-        print("total duplicats"), total_duplicate
+
 
         dependencycheck_scan_db.objects.filter(scan_id=scan_id).update(
             total_vuln=total_vul,

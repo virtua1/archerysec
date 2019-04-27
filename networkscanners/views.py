@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
-#                   _
-#    /\            | |
-#   /  \   _ __ ___| |__   ___ _ __ _   _
-#  / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
-# / ____ \| | | (__| | | |  __/ |  | |_| |
+#                    _
+#     /\            | |
+#    /  \   _ __ ___| |__   ___ _ __ _   _
+#   / /\ \ | '__/ __| '_ \ / _ \ '__| | | |
+#  / ____ \| | | (__| | | |  __/ |  | |_| |
 # /_/    \_\_|  \___|_| |_|\___|_|   \__, |
-#                                    __/ |
-#                                   |___/
-# Copyright (C) 2017-2018 ArcherySec
+#                                     __/ |
+#                                    |___/
+# Copyright (C) 2017 Anand Tiwari
+#
+# Email:   anandtiwarics@gmail.com
+# Twitter: @anandtiwarics
+#
 # This file is part of ArcherySec Project.
-
 """ Author: Anand Tiwari """
 
 from __future__ import unicode_literals
@@ -92,7 +95,7 @@ def index(request):
 
     all_notify = Notification.objects.unread()
 
-    return render(request, 'index.html', {'all_ip': all_ip, 'message': all_notify})
+    return render(request, 'openvas_scan.html', {'all_ip': all_ip, 'message': all_notify})
 
 
 def scan_status(request):
@@ -105,7 +108,7 @@ def scan_status(request):
         all_ip = scan_save_db.objects.all()
         scan_ip = request.POST.get('scan_id', )
 
-    return render(request, 'index.html')
+    return render(request, 'openvas_scan.html')
 
 
 def scan_vul_details(request):
@@ -181,7 +184,7 @@ def scan_vul_details(request):
                                                                                   'port', 'vul_id',
                                                                                   'jira_ticket').distinct()
     return render(request,
-                  'vul_details.html',
+                  'openvas_vuln_list.html',
                   {'all_vuln': all_vuln,
                    'scan_id': scanid,
                    'jira_url': jira_url,
@@ -276,7 +279,7 @@ def launch_scan(request):
             thread.daemon = True
             thread.start()
 
-    return render_to_response('vul_details.html',
+    return render_to_response('openvas_vuln_list.html',
                               {'all_ip': all_ip})
 
 
@@ -499,7 +502,7 @@ def vuln_check(request):
         xref_list = xref.split(",")
         cve_list = cve.split(",")
 
-    return render(request, 'ov_vuln_data.html', {'vul_dat': vul_dat,
+    return render(request, 'openvas_scan_data.html', {'vul_dat': vul_dat,
                                                  'cve_list': cve_list,
                                                  'xref_list': xref_list
 
@@ -556,7 +559,7 @@ def add_vuln(request):
         save_vuln.save()
 
         messages.success(request, "Vulnerability Added")
-        return HttpResponseRedirect("/networkscanners/vul_details/?scan_id=%s" % scan_id)
+        return HttpResponseRedirect("/networkscanners/?scan_id=%s" % scan_id)
 
     return render(request, 'ov_add_vuln.html', {'scan_id': scan_id})
 
