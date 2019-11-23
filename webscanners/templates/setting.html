@@ -335,7 +335,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12">
+            <div class="col-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-md-flex align-items-center">
@@ -375,6 +375,57 @@
                                                         </div>
                                                     </div>
                                                     <a class="btn btn-primary" href="{% url 'webscanners:email_setting' %}"
+                                                       role="button">Edit</a>
+                                                </form>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-md-flex align-items-center">
+                            <h1 class="card-title">Sonarqube Setting</h1>
+                        </div>
+                        <br>
+                        <div class="card">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <form class="form-horizontal">
+                                            <div class="card-body">
+                                                 <form>
+                                                    <div class="form-group row">
+                                                        <label
+                                                                class="col-sm-4 col-form-label">Sonarqube Server URL</label>
+                                                        <div class="col-sm-6">
+                                                            <input type="text" readonly class="form-control-plaintext"
+                                                                   value="{{ jira_server }}" placeholder="JIRA Endpoint">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label
+                                                                class="col-sm-4 col-form-label">Username</label>
+                                                        <div class="col-sm-6">
+                                                            <input type="text" readonly class="form-control-plaintext"
+                                                                   value="{{ jira_username }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label
+                                                                class="col-sm-4 col-form-label">Password</label>
+                                                        <div class="col-sm-6">
+                                                            <input type="password" readonly
+                                                                   class="form-control-plaintext"
+                                                                   value="{{ jira_password }}">
+                                                        </div>
+                                                    </div>
+                                                    <a class="btn btn-primary" href="{% url 'jiraticketing:jira_setting' %}"
                                                        role="button">Edit</a>
                                                 </form>
                                             </div>

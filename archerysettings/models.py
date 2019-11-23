@@ -17,6 +17,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django_cryptography.fields import encrypt
 
 
 class zap_settings_db(models.Model):
@@ -40,8 +41,8 @@ class openvas_setting_db(models.Model):
     host = models.TextField(blank=True, null=True)
     port = models.IntegerField(blank=False, null=False, default=9390)
     enabled = models.NullBooleanField(blank=False, null=False)
-    user = models.TextField(blank=True, null=True)
-    password = models.TextField(blank=True, null=True)
+    user = encrypt(models.CharField(blank=True, null=True, max_length=150))
+    password = encrypt(models.CharField(blank=True, null=True, max_length=150))
 
 
 class nmap_vulners_setting_db(models.Model):
@@ -58,3 +59,9 @@ class email_db(models.Model):
     subject = models.TextField(blank=True, null=True)
     message = models.TextField(blank=True, null=True)
     recipient_list = models.TextField(blank=True, null=True)
+
+
+class sonarqube_setting_db(models.Model):
+    sonarqube_url = models.TextField(blank=True, null=True)
+    sonarqube_user = encrypt(models.TextField(blank=True, null=True))
+    sonarqube_pwd = encrypt(models.TextField(blank=True, null=True))
