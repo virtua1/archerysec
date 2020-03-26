@@ -21,6 +21,8 @@ import hashlib
 from datetime import datetime
 from django.shortcuts import HttpResponse
 
+from webscanners.zapscanner.views import email_sch_notify
+
 
 def xml_parser(data, project_id, scan_id):
     """
@@ -85,6 +87,33 @@ def xml_parser(data, project_id, scan_id):
                                             severity = 'Low'
 
                         elif pt == 'https://jeremylong.github.io/DependencyCheck/dependency-check.2.2.xsd':
+                            for dc22 in vuln:
+
+                                if dc22.tag == '{%s}name' % pt:
+                                    name = dc22.text
+
+                                if dc22.tag == '{%s}description' % pt:
+                                    description = dc22.text
+
+                                if dc22.tag == '{%s}vulnerableSoftware' % pt:
+                                    vulnerableSoftware = dc22.text
+
+                                for vuln_dat in dc22:
+                                    for d in vuln_dat:
+                                        if d.tag == '{%s}url' % pt:
+                                            references = d.text
+
+                                    if vuln_dat.tag == '{%s}cwe' % pt:
+                                        cwe = vuln_dat.text
+                                    if vuln_dat.tag == '{%s}severity' % pt:
+                                        severity_dat = vuln_dat.text
+                                        if severity_dat == 'HIGH':
+                                            severity = 'High'
+                                        elif severity_dat == 'MEDIUM':
+                                            severity = 'Medium'
+                                        elif severity_dat == 'LOW':
+                                            severity = 'Low'
+                        elif pt == 'https://jeremylong.github.io/DependencyCheck/dependency-check.2.3.xsd':
                             for dc22 in vuln:
 
                                 if dc22.tag == '{%s}name' % pt:
@@ -222,4 +251,12 @@ def xml_parser(data, project_id, scan_id):
             SEVERITY_LOW=total_low,
             total_dup=total_duplicate
         )
+
+    subject = 'Archery Tool Scan Status - DependencyCheck Report Uploaded'
+    message = 'DependencyCheck Scanner has completed the scan ' \
+              '  %s <br> Total: %s <br>High: %s <br>' \
+              'Medium: %s <br>Low %s' % (name, total_vul, total_high, total_medium, total_low)
+
+    email_sch_notify(subject=subject, message=message)
+
     return HttpResponse(status=201)

@@ -86,6 +86,7 @@ def launch_zap_scan(target_url, project_id, rescan_id, rescan, scan_id, user):
     :return:
     """
     zap_enabled = False
+    random_port = '8090'
 
     all_zap = zap_settings_db.objects.all()
     for zap in all_zap:
@@ -93,34 +94,29 @@ def launch_zap_scan(target_url, project_id, rescan_id, rescan, scan_id, user):
 
     if zap_enabled is False:
         print("started local instence")
-        zap_plugin.zap_local()
-        time.sleep(20)
+        random_port = zap_plugin.zap_local()
+        print(random_port)
 
+    for i in range(0, 100):
+        while True:
+            try:
+                # Connection Test
+                zap_connect = zap_plugin.zap_connect(random_port)
+                zap_connect.spider.scan(url=target_url)
+            except Exception as e:
+                print("ZAP Connection Not Found, re-try after 5 sec")
+                time.sleep(5)
+                continue
+            break
 
-    # Connection Test
-    zap_connect = zap_plugin.zap_connect()
+    zap_plugin.zap_spider_thread(count=20, random_port=random_port)
+    zap_plugin.zap_spider_setOptionMaxDepth(count=5, random_port=random_port)
 
-    try:
-        zap_connect.spider.scan(url=target_url)
-        notify.send(user, recipient=user, verb='ZAP Scan Started')
-
-    except Exception:
-        notify.send(user, recipient=user, verb='ZAP Connection Not Found')
-        subject = 'ZAP Connection Not Found'
-        message = 'ZAP Scanner failed due to setting not found '
-
-        email_notify(user=user, subject=subject, message=message)
-        print("ZAP Connection Not Found")
-        return HttpResponseRedirect(reverse('zapscanner:zap_scan_list'))
-
-    zap_plugin.zap_spider_thread(count=20)
-    zap_plugin.zap_spider_setOptionMaxDepth(count=5)
-
-    zap_plugin.zap_scan_thread(count=30)
-    zap_plugin.zap_scan_setOptionHostPerScan(count=3)
+    zap_plugin.zap_scan_thread(count=30, random_port=random_port)
+    zap_plugin.zap_scan_setOptionHostPerScan(count=3, random_port=random_port)
 
     # Load ZAP Plugin
-    zap = zap_plugin.ZAPScanner(target_url, project_id, rescan_id, rescan)
+    zap = zap_plugin.ZAPScanner(target_url, project_id, rescan_id, rescan, random_port=random_port)
     zap.exclude_url()
     time.sleep(3)
     zap.cookies()
@@ -141,6 +137,8 @@ def launch_zap_scan(target_url, project_id, rescan_id, rescan, scan_id, user):
         notify.send(user, recipient=user, verb='ZAP Scan URL %s Added' % target_url)
     except Exception as e:
         print(e)
+
+    notify.send(user, recipient=user, verb='ZAP Scan Started')
     zap.zap_spider_thread(thread_value=30)
     spider_id = zap.zap_spider()
     zap.spider_status(spider_id=spider_id)
@@ -155,7 +153,7 @@ def launch_zap_scan(target_url, project_id, rescan_id, rescan, scan_id, user):
     )
     """ Save Vulnerability in database """
     time.sleep(5)
-    all_vuln = zap.zap_scan_result()
+    all_vuln = zap.zap_scan_result(target_url=target_url)
     time.sleep(5)
     save_all_vuln = zap.zap_result_save(
         all_vuln=all_vuln,
@@ -195,9 +193,10 @@ def launch_schudle_zap_scan(target_url, project_id, rescan_id, rescan, scan_id):
     :param project_id: Project ID
     :return:
     """
+    random_port = '8090'
 
     # Connection Test
-    zap_connect = zap_plugin.zap_connect()
+    zap_connect = zap_plugin.zap_connect(random_port)
 
     try:
         zap_connect.spider.scan(url=target_url)
@@ -211,7 +210,7 @@ def launch_schudle_zap_scan(target_url, project_id, rescan_id, rescan, scan_id):
         return HttpResponseRedirect(reverse('webscanners:index'))
 
     # Load ZAP Plugin
-    zap = zap_plugin.ZAPScanner(target_url, project_id, rescan_id, rescan)
+    zap = zap_plugin.ZAPScanner(target_url, project_id, rescan_id, rescan, random_port=random_port)
     zap.exclude_url()
     time.sleep(3)
     zap.cookies()
@@ -244,7 +243,7 @@ def launch_schudle_zap_scan(target_url, project_id, rescan_id, rescan, scan_id):
     )
     """ Save Vulnerability in database """
     time.sleep(5)
-    all_vuln = zap.zap_scan_result()
+    all_vuln = zap.zap_scan_result(target_url=target_url)
     time.sleep(5)
     zap.zap_result_save(
         all_vuln=all_vuln,
@@ -296,6 +295,7 @@ def zap_scan(request):
                 args=(target, project_id, rescan_id, rescan, scan_id, user))
             thread.daemon = True
             thread.start()
+            time.sleep(10)
         if scans_status == '100':
             scans_status = "0"
         else:
@@ -633,7 +633,7 @@ def del_cookies(request):
             print(cookies_target)
             del_cookie = cookie_db.objects.filter(url=cookies_target)
             del_cookie.delete()
-            zap_plugin.zap_replacer(target_url=cookies_target)
+            zap_plugin.zap_replacer(target_url=cookies_target, random_port='8090')
         return HttpResponseRedirect(reverse('webscanners:index'))
 
     return render(request, 'cookies_list.html')
@@ -764,27 +764,31 @@ def zap_vuln_check(request):
     full_data = []
     for data in vul_dat:
         evi = data.evidence
-        evi_data = ast.literal_eval(evi)
-        for evidence in evi_data:
-            for key, value in evidence.items():
-                if key == 'evidence':
-                    key = 'Evidence'
+        try:
+            evi_data = ast.literal_eval(evi)
+            for evidence in evi_data:
+                for key, value in evidence.items():
+                    if key == 'evidence':
+                        key = 'Evidence'
 
-                if key == 'attack':
-                    key = 'Attack'
+                    if key == 'attack':
+                        key = 'Attack'
 
-                if key == 'uri':
-                    key = 'URI'
+                    if key == 'uri':
+                        key = 'URI'
 
-                if key == 'method':
-                    key = 'Method'
+                    if key == 'method':
+                        key = 'Method'
 
-                if key == 'param':
-                    key = 'Parameter'
+                    if key == 'param':
+                        key = 'Parameter'
 
-                instance = key + ': ' + value
+                    instance = key + ': ' + value
 
-                full_data.append(instance)
+                    full_data.append(instance)
+        except Exception as e:
+            full_data = 'NA'
+            print(e)
 
     return render(request, 'zapscanner/zap_vuln_check.html',
                   {'vul_dat': vul_dat,

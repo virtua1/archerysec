@@ -11,11 +11,9 @@ services:
       - POSTGRES_USER=archerysec
 
   archerysec:
-    build: .
+    image: archerysec/archerysec
     ports:
       - "8000:8000"
-    volumes:
-      - .:/home/archerysec/app
     expose:
       - "8000"
     depends_on:
@@ -35,9 +33,7 @@ services:
     container_name: archerysec
 
   archerysec-worker:
-    build: .
-    volumes:
-      - .:/home/archerysec/app
+    image: archerysec/archerysec
     depends_on:
       - db
       - archerysec
